@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>شروط الاستخدام — CineVerse</title>
+  <link rel="icon" type="image/svg+xml" href="assets/images/logo.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="assets/css/base.css">
+  <link rel="stylesheet" href="assets/css/layout.css">
+  <link rel="stylesheet" href="assets/css/components.css">
+  <link rel="stylesheet" href="assets/css/rtl.css">
+  <style>
+    .page-shell { padding-block: var(--sp-10) var(--sp-16); max-width: 780px; margin-inline: auto; }
+    .page-shell h1 { font-size: var(--fs-4xl); font-weight: var(--fw-extrabold); letter-spacing: -0.02em; margin-bottom: var(--sp-4); }
+    .page-shell h1 span { color: var(--brand); }
+    .page-shell h2 { font-size: var(--fs-2xl); margin-top: var(--sp-8); margin-bottom: var(--sp-4); }
+    .page-shell p, .page-shell li { color: var(--text-secondary); line-height: 1.75; margin-bottom: var(--sp-3); }
+    .page-shell ul { padding-inline-start: var(--sp-6); margin-bottom: var(--sp-4); }
+    .page-shell ul li { list-style: disc; }
+    .page-shell a { color: var(--brand); text-decoration: underline; }
+    .page-shell__updated { color: var(--text-muted); font-size: var(--fs-sm); margin-bottom: var(--sp-8); }
+    .country-select { height: 40px; padding-inline: var(--sp-3); padding-inline-end: var(--sp-5); background-color: var(--bg-tertiary); border: 1px solid var(--border); border-radius: var(--radius-md); color: var(--text-primary); font-size: var(--fs-sm); cursor: pointer; appearance: none; background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23a8a8b8' stroke-width='2' stroke-linecap='round'><path d='m6 9 6 6 6-6'/></svg>"); background-repeat: no-repeat; background-position: right 10px center; background-size: 12px; padding-right: 30px; }
+    html[dir="rtl"] .country-select { background-position: left 10px center; padding-right: var(--sp-3); padding-left: 30px; }
+    @media (max-width: 640px) { .country-select { display: none; } }
+    .site-header__menu-btn { background-color: var(--bg-tertiary); border: 1px solid var(--border); }
+  </style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container site-header__inner">
+    <a href="index.html" class="site-header__logo"><img src="assets/images/logo.svg" alt="CineVerse" width="180" height="42"></a>
+    <nav class="site-header__nav" id="primary-nav">
+      <a href="index.html" data-i18n="nav.home"></a>
+      <a href="search.html?type=movie" data-i18n="nav.movies"></a>
+      <a href="search.html?type=tv" data-i18n="nav.series"></a>
+    </nav>
+    <div class="site-header__actions">
+      <select class="country-select" id="country-select" aria-label="Country"></select>
+      <div id="header-user-slot"></div>
+      <button class="site-header__menu-btn" id="menu-toggle" aria-label="Menu" aria-expanded="false">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div class="container page-shell">
+    <h1>شروط <span>الاستخدام</span></h1>
+    <p class="page-shell__updated">آخر تحديث: أكتوبر 2026</p>
+
+    <p>
+      باستخدامك CineVerse، فإنك توافق على الشروط التالية. يُرجى قراءتها بعناية.
+    </p>
+
+    <h2>1. قبول الشروط</h2>
+    <p>الدخول إلى الموقع يعني موافقتك على هذه الشروط. إن لم توافق، يُرجى عدم استخدام الخدمة.</p>
+
+    <h2>2. طبيعة الخدمة</h2>
+    <ul>
+      <li>CineVerse منصة اكتشاف، وليست خدمة بث.</li>
+      <li>لا نستضيف أفلامًا أو حلقات، ولا نوفر روابط غير قانونية.</li>
+      <li>جميع الروابط الرسمية تُقدَّم "كما هي"، دون ضمان استمرار توفرها.</li>
+    </ul>
+
+    <h2>3. حساب المستخدم</h2>
+    <ul>
+      <li>أنت مسؤول عن سرية كلمة المرور.</li>
+      <li>لا يجوز مشاركة الحساب أو استخدامه لأغراض ضارة.</li>
+      <li>نحتفظ بحق تعليق الحسابات التي تخالف الشروط.</li>
+    </ul>
+
+    <h2>4. المحتوى المقدم من المستخدم</h2>
+    <p>
+      عند كتابة مراجعة أو تقييم، أنت تمنح CineVerse ترخيصًا غير حصري لعرض هذا المحتوى.
+      يُمنع نشر محتوى مسيء، أو تشهيري، أو مخالف للقانون.
+    </p>
+
+    <h2>5. الملكية الفكرية</h2>
+    <p>
+      الشعار، التصميم، والكود مملوكة لـ CineVerse. البوسترات والصور والفيديوهات مملوكة لأصحابها (TMDB والاستوديوهات) وتُعرض بموجب شروطهم.
+    </p>
+
+    <h2>6. إخلاء المسؤولية</h2>
+    <p>
+      نقدّم الخدمة "كما هي" دون ضمانات صريحة أو ضمنية. لا نتحمل مسؤولية أي أضرار ناتجة عن استخدام الموقع أو الروابط الخارجية.
+    </p>
+
+    <h2>7. الروابط الخارجية</h2>
+    <p>
+      قد يحتوي الموقع على روابط لمنصات ومواقع خارجية. لا نتحكم في محتواها ولا نتحمل مسؤوليتها.
+    </p>
+
+    <h2>8. التعديلات</h2>
+    <p>قد نحدّث هذه الشروط في أي وقت. الاستمرار في الاستخدام يعني الموافقة على النسخة المحدّثة.</p>
+
+    <h2>9. القانون الواجب التطبيق</h2>
+    <p>تُفسَّر هذه الشروط وفقًا للقوانين المعمول بها في بلد تشغيل الموقع.</p>
+
+    <h2>10. تواصل</h2>
+    <p>لأي استفسار قانوني: <a href="contact.html">صفحة الاتصال</a>.</p>
+
+    <p style="margin-top:var(--sp-8); font-size:var(--fs-sm); color:var(--text-muted);">
+      <strong>ملاحظة:</strong> نص استرشادي مبدئي. يُنصح بمراجعة قانونية قبل الإطلاق التجاري.
+    </p>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <div class="site-footer__grid">
+      <div class="site-footer__brand">
+        <img src="assets/images/logo.svg" alt="CineVerse" style="height:38px;width:auto;">
+        <p data-i18n="footer.tagline"></p>
+      </div>
+      <div>
+        <h3 class="site-footer__heading" data-i18n="footer.browse"></h3>
+        <div class="site-footer__links">
+          <a href="search.html?type=movie" data-i18n="nav.movies"></a>
+          <a href="search.html?type=tv" data-i18n="nav.series"></a>
+        </div>
+      </div>
+      <div>
+        <h3 class="site-footer__heading" data-i18n="footer.about"></h3>
+        <div class="site-footer__links">
+          <a href="about.html" data-i18n="footer.about"></a>
+          <a href="contact.html" data-i18n="footer.contact"></a>
+        </div>
+      </div>
+      <div>
+        <h3 class="site-footer__heading" data-i18n="footer.legal"></h3>
+        <div class="site-footer__links">
+          <a href="privacy.html" data-i18n="footer.privacy"></a>
+          <a href="terms.html" data-i18n="footer.terms"></a>
+          <a href="affiliate-disclosure.html" data-i18n="footer.affiliate"></a>
+        </div>
+      </div>
+    </div>
+    <div class="site-footer__bottom">
+      <span>© <span id="footer-year"></span> CineVerse — <span data-i18n="footer.rights"></span></span>
+      <span>Powered by TMDB</span>
+    </div>
+  </div>
+</footer>
+
+<script src="assets/js/api.js"></script>
+<script src="assets/js/i18n.js"></script>
+<script src="assets/js/lang-switcher.js"></script>
+<script src="assets/js/auth.js"></script>
+<script>
+  document.getElementById('footer-year').textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

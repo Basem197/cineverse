@@ -1,0 +1,22 @@
+# Environment — NEVER commit real secrets
+.env
+.env.local
+.env.production
+
+# Storage
+storage/cache/*
+storage/logs/*
+!storage/cache/.gitkeep
+!storage/logs/.gitkeep
+
+# Composer
+/vendor/
+composer.lock
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db

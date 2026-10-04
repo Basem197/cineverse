@@ -1,0 +1,42 @@
+# Environment & Secrets
+.env
+.env.local
+.env.*.local
+*.env
+
+# Dependencies
+node_modules/
+vendor/
+composer.lock
+
+# Logs
+*.log
+logs/
+api/storage/logs/*.log
+
+# Cache
+api/storage/cache/*
+!api/storage/cache/.gitkeep
+
+# OS Files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Build / Dist
+dist/
+build/
+
+# Backups
+*.bak
+*.backup
+*.sql.gz
+
+# Test Coverage
+coverage/

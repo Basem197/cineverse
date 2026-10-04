@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>تحميل... — CineVerse</title>
+  <meta name="description" content="تفاصيل الفيلم على CineVerse">
+  
+  <link rel="icon" type="image/svg+xml" href="assets/images/logo.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  
+  <link rel="stylesheet" href="assets/css/base.css">
+  <link rel="stylesheet" href="assets/css/layout.css">
+  <link rel="stylesheet" href="assets/css/components.css">
+  <link rel="stylesheet" href="assets/css/rtl.css">
+  
+  <style>
+    .title-hero {
+      position: relative;
+      min-height: 70vh;
+      display: flex;
+      align-items: flex-end;
+      overflow: hidden;
+      margin-bottom: var(--sp-10);
+    }
+    
+    .title-hero__backdrop {
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      background-size: cover;
+      background-position: center 25%;
+      opacity: 0.5;
+    }
+    
+    .title-hero__overlay {
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      background: linear-gradient(
+        180deg,
+        rgba(10,10,15,0.4) 0%,
+        rgba(10,10,15,0.7) 60%,
+        var(--bg-primary) 100%
+      );
+    }
+    
+    .title-hero__content {
+      position: relative;
+      z-index: 2;
+      width: 100%;
+      padding-block: var(--sp-12) var(--sp-10);
+    }
+    
+    .title-hero__layout {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: var(--sp-6);
+      align-items: end;
+    }
+    
+    @media (min-width: 768px) {
+      .title-hero__layout {
+        grid-template-columns: 220px 1fr;
+        gap: var(--sp-10);
+      }
+    }
+    
+    .title-hero__poster {
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      box-shadow: var(--shadow-xl);
+      aspect-ratio: 2/3;
+      background-color: var(--bg-tertiary);
+      display: none;
+    }
+    
+    @media (min-width: 768px) {
+      .title-hero__poster { display: block; }
+    }
+    
+    .title-hero__poster img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    
+    .title-hero__info {
+      display: flex;
+      flex-direction: column;
+      gap: var(--sp-4);
+    }
+    
+    .title-hero__eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--sp-3);
+      font-size: var(--fs-xs);
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      color: var(--brand);
+      font-weight: var(--fw-semibold);
+    }
+    
+    .title-hero__title {
+      font-size: clamp(1.75rem, 4vw + 1rem, 3.5rem);
+      font-weight: var(--fw-extrabold);
+      line-height: 1.05;
+      letter-spacing: -0.02em;
+    }
+    
+    .title-hero__original-title {
+      font-size: var(--fs-lg);
+      color: var(--text-muted);
+      font-weight: var(--fw-medium);
+      font-style: italic;
+    }
+    
+    .title-hero__meta {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: var(--sp-3);
+      color: var(--text-secondary);
+      font-size: var(--fs-sm);
+    }
+    
+    .title-hero__meta > span {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--sp-1);
+    }
+    
+    .title-hero__rating {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 10px;
+      background-color: var(--gold-soft);
+      color: var(--gold);
+      border-radius: var(--radius-sm);
+      font-weight: var(--fw-bold);
+      font-size: var(--fs-sm);
+    }
+    
+    .title-hero__rating svg {
+      width: 14px;
+      height: 14px;
+      fill: currentColor;
+    }
+    
+    .title-hero__tagline {
+      font-style: italic;
+      color: var(--text-muted);
+      font-size: var(--fs-base);
+    }
+    
+    .title-hero__actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--sp-3);
+      margin-top: var(--sp-2);
+    }
+    
+    .title-hero__genres {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--sp-2);
+      margin-top: var(--sp-2);
+    }
+    
+    .title-content {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: var(--sp-10);
+    }
+    
+    @media (min-width: 1024px) {
+      .title-content {
+        grid-template-columns: 1fr 340px;
+        gap: var(--sp-12);
+      }
+    }
+    
+    .title-content__main > section + section { margin-top: var(--sp-10); }
+    .title-content__aside > section + section { margin-top: var(--sp-8); }
+    
+    .content-block__title {
+      font-size: var(--fs-xl);
+      font-weight: var(--fw-bold);
+      margin-bottom: var(--sp-4);
+      display: flex;
+      align-items: center;
+      gap: var(--sp-3);
+    }
+    
+    .content-block__title::before {
+      content: '';
+      width: 4px;
+      height: 20px;
+      background: var(--gradient-brand);
+      border-radius: 2px;
+    }
+    
+    .overview-text {
+      font-size: var(--fs-lg);
+      line-height: 1.7;
+      color: var(--text-secondary);
+      max-width: 75ch;
+    }
+    
+    .cast-scroll {
+      display: grid;
+      grid-auto-flow: column;
+      grid-auto-columns: 130px;
+      gap: var(--sp-4);
+      overflow-x: auto;
+      padding-bottom: var(--sp-3);
+      scroll-snap-type: x mandatory;
+    }
+    
+    .cast-scroll::-webkit-scrollbar { height: 6px; }
+    
+    .cast-card { scroll-snap-align: start; text-align: center; }
+    
+    .cast-card__photo {
+      width: 100%;
+      aspect-ratio: 1;
+      border-radius: var(--radius-full);
+      overflow: hidden;
+      background-color: var(--bg-elevated);
+      margin-bottom: var(--sp-3);
+      border: 2px solid var(--border);
+    }
+    
+    .cast-card__photo img { width: 100%; height: 100%; object-fit: cover; }
+    
+    .cast-card__photo--empty {
+      display: grid;
+      place-items: center;
+      color: var(--text-disabled);
+      font-size: var(--fs-2xl);
+      font-weight: var(--fw-bold);
+    }
+    
+    .cast-card__name {
+      font-size: var(--fs-sm);
+      font-weight: var(--fw-semibold);
+      line-height: 1.3;
+      margin-bottom: 2px;
+    }
+    
+    .cast-card__role {
+      font-size: var(--fs-xs);
+      color: var(--text-muted);
+      line-height: 1.3;
+    }
+    
+    .directors-list { display: flex; flex-wrap: wrap; gap: var(--sp-4); }
+    
+    .director-card {
+      display: flex;
+      align-items: center;
+      gap: var(--sp-3);
+      padding: var(--sp-2) var(--sp-4) var(--sp-2) var(--sp-2);
+      background-color: var(--bg-tertiary);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-full);
+    }
+    
+    .director-card__photo {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      overflow: hidden;
+      background-color: var(--bg-elevated);
+      flex-shrink: 0;
+    }
+    
+    .director-card__photo img { width: 100%; height: 100%; object-fit: cover; }
+    
+    .director-card__name { font-size: var(--fs-sm); font-weight: var(--fw-semibold); }
+    
+    .watch-box {
+      padding: var(--sp-5);
+      background-color: var(--bg-tertiary);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+    }
+    
+    .watch-box__header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--sp-3);
+      margin-bottom: var(--sp-4);
+    }
+    
+    .watch-box__country {
+      font-size: var(--fs-xs);
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+    
+    .watch-offer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--sp-3);
+      padding: var(--sp-3) 0;
+      border-top: 1px solid var(--divider);
+    }
+    
+    .watch-offer:first-child { border-top: none; padding-top: 0; }
+    
+    .watch-offer__info { display: flex; align-items: center; gap: var(--sp-3); min-width: 0; }
+    
+    .watch-offer__logo {
+      width: 40px;
+      height: 40px;
+      border-radius: var(--radius-sm);
+      background-color: var(--bg-elevated);
+      overflow: hidden;
+      flex-shrink: 0;
+      display: grid;
+      place-items: center;
+    }
+    
+    .watch-offer__logo img { width: 100%; height: 100%; object-fit: cover; }
+    
+    .watch-offer__name {
+      font-size: var(--fs-sm);
+      font-weight: var(--fw-semibold);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    
+    .watch-offer__type {
+      font-size: var(--fs-xs);
+      color: var(--text-muted);
+      text-transform: capitalize;
+    }
+    
+    .watch-offer__cta {
+      flex-shrink: 0;
+      font-size: var(--fs-xs);
+      padding: 6px 12px;
+      height: auto;
+    }
+    
+    .similar-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      gap: var(--sp-4);
+      margin-top: var(--sp-6);
+    }
+    
+    @media (min-width: 640px) {
+      .similar-grid {
+        grid-template-columns: repeat(auto-fill, minmax(165px, 1fr));
+        gap: var(--sp-5);
+      }
+    }
+    
+    .country-select {
+      height: 40px;
+      padding-inline: var(--sp-3);
+      padding-inline-end: var(--sp-5);
+      background-color: var(--bg-tertiary);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      color: var(--text-primary);
+      font-size: var(--fs-sm);
+      font-weight: var(--fw-medium);
+      cursor: pointer;
+      outline: none;
+      transition: border-color var(--t-fast);
+      appearance: none;
+      background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23a8a8b8' stroke-width='2' stroke-linecap='round'><path d='m6 9 6 6 6-6'/></svg>");
+      background-repeat: no-repeat;
+      background-position: right 10px center;
+      background-size: 12px;
+      padding-right: 30px;
+    }
+    
+    html[dir="rtl"] .country-select {
+      background-position: left 10px center;
+      padding-right: var(--sp-3);
+      padding-left: 30px;
+    }
+    
+    @media (max-width: 640px) {
+      .country-select { display: none; }
+    }
+    
+    .site-header__menu-btn {
+      background-color: var(--bg-tertiary);
+      border: 1px solid var(--border);
+    }
+  </style>
+</head>
+
+<body>
+  <header class="site-header">
+    <div class="container site-header__inner">
+      <a href="index.html" class="site-header__logo" aria-label="CineVerse">
+        <img src="assets/images/logo.svg" alt="CineVerse" width="180" height="42">
+      </a>
+      <nav class="site-header__nav" id="primary-nav" aria-label="Primary">
+        <a href="index.html" data-i18n="nav.home"></a>
+        <a href="search.html?type=movie" data-i18n="nav.movies"></a>
+        <a href="search.html?type=tv" data-i18n="nav.series"></a>
+        <a href="index.html#genres" data-i18n="nav.genres"></a>
+        <a href="index.html#providers" data-i18n="nav.providers"></a>
+      </nav>
+      <div class="site-header__actions">
+        <select class="country-select" id="country-select" aria-label="Country"></select>
+        <div id="header-user-slot"></div>
+        <button class="site-header__menu-btn" id="menu-toggle" aria-label="Menu" aria-expanded="false">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <path d="M3 6h18M3 12h18M3 18h18"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main id="main" aria-busy="true">
+
+    <div class="container loading-block" id="loading-state">
+      <div class="spinner"></div>
+    </div>
+
+    <div class="container" id="error-state" style="display:none;">
+      <div class="state state--error">
+        <div class="state__title" id="error-title"></div>
+        <p class="state__message" id="error-message"></p>
+        <a href="index.html" class="btn btn--primary">العودة للرئيسية</a>
+      </div>
+    </div>
+
+    <div id="content" style="display:none;">
+
+      <section class="title-hero">
+        <div class="title-hero__backdrop" id="title-backdrop"></div>
+        <div class="title-hero__overlay"></div>
+
+        <div class="container title-hero__content">
+          <div class="title-hero__layout">
+            <div class="title-hero__poster">
+              <img id="title-poster" src="" alt="">
+            </div>
+
+            <div class="title-hero__info">
+              <div class="title-hero__eyebrow" id="title-type-eyebrow"></div>
+
+              <h1 class="title-hero__title" id="title-name"></h1>
+              <div class="title-hero__original-title" id="title-original" style="display:none;"></div>
+
+              <div class="title-hero__meta" id="title-meta"></div>
+
+              <div class="title-hero__tagline" id="title-tagline" style="display:none;"></div>
+
+              <div class="title-hero__actions">
+                <button class="btn btn--primary btn--lg" id="watch-trailer-btn" style="display:none;">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                    <path d="M8 5v14l11-7z"/>
+                  </svg>
+                  <span data-i18n="trailer.watch"></span>
+                </button>
+                <button class="btn btn--secondary btn--lg" id="add-watchlist-btn">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
+                       stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                    <path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z"/>
+                  </svg>
+                  <span data-i18n="watchlist.save">حفظ</span>
+                </button>
+              </div>
+
+              <div class="title-hero__genres" id="title-genres"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div class="container">
+        <div class="title-content">
+
+          <div class="title-content__main">
+
+            <section id="section-overview">
+              <h2 class="content-block__title">القصة</h2>
+              <p class="overview-text" id="title-overview"></p>
+            </section>
+
+            <section id="section-cast" style="display:none;">
+              <h2 class="content-block__title">طاقم التمثيل</h2>
+              <div class="cast-scroll" id="cast-list"></div>
+            </section>
+
+            <section id="section-directors" style="display:none;">
+              <h2 class="content-block__title">المخرج</h2>
+              <div class="directors-list" id="directors-list"></div>
+            </section>
+
+            <section id="section-similar" style="display:none;">
+              <h2 class="content-block__title">أفلام مشابهة</h2>
+              <div class="similar-grid" id="similar-list"></div>
+            </section>
+
+          </div>
+
+          <aside class="title-content__aside">
+
+            <section>
+              <h2 class="content-block__title">أين تشاهده</h2>
+              <div class="watch-box" id="watch-box">
+                <div class="watch-box__header">
+                  <span class="watch-box__country" id="watch-country-label"></span>
+                </div>
+                <div id="watch-offers">
+                  <div class="skeleton skeleton--text" style="width: 60%;"></div>
+                  <div class="skeleton skeleton--text" style="width: 80%; margin-top: 8px;"></div>
+                </div>
+              </div>
+            </section>
+
+            <section id="section-family" style="display:none;">
+              <h2 class="content-block__title">الدليل العائلي</h2>
+              <div class="watch-box" id="family-box"></div>
+            </section>
+
+          </aside>
+
+        </div>
+      </div>
+
+    </div>
+
+  </main>
+
+  <div class="modal" id="trailer-modal" role="dialog" aria-modal="true" aria-labelledby="trailer-title" aria-hidden="true">
+    <div class="modal__backdrop" data-close-modal></div>
+    <div class="modal__dialog">
+      <div class="modal__header">
+        <h2 class="modal__title" id="trailer-title">Trailer</h2>
+        <button class="modal__close" data-close-modal aria-label="Close">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <path d="M18 6 6 18M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
+      <div class="modal__body">
+        <div class="modal__video" id="trailer-video-container"></div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="site-footer">
+    <div class="container">
+      <div class="site-footer__grid">
+        <div class="site-footer__brand">
+          <img src="assets/images/logo.svg" alt="CineVerse" style="height: 38px; width: auto;">
+          <p data-i18n="footer.tagline"></p>
+        </div>
+        <div>
+          <h3 class="site-footer__heading" data-i18n="footer.browse"></h3>
+          <div class="site-footer__links">
+            <a href="search.html?type=movie" data-i18n="nav.movies"></a>
+            <a href="search.html?type=tv" data-i18n="nav.series"></a>
+            <a href="index.html#genres" data-i18n="nav.genres"></a>
+            <a href="index.html#providers" data-i18n="nav.providers"></a>
+          </div>
+        </div>
+        <div>
+          <h3 class="site-footer__heading" data-i18n="footer.about"></h3>
+          <div class="site-footer__links">
+            <a href="about.html" data-i18n="footer.about"></a>
+            <a href="contact.html" data-i18n="footer.contact"></a>
+          </div>
+        </div>
+        <div>
+          <h3 class="site-footer__heading" data-i18n="footer.legal"></h3>
+          <div class="site-footer__links">
+            <a href="privacy.html" data-i18n="footer.privacy"></a>
+            <a href="terms.html" data-i18n="footer.terms"></a>
+            <a href="affiliate-disclosure.html" data-i18n="footer.affiliate"></a>
+          </div>
+        </div>
+      </div>
+      <div class="site-footer__bottom">
+        <span>© <span id="footer-year"></span> CineVerse — <span data-i18n="footer.rights"></span></span>
+        <span>Powered by TMDB</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="assets/js/api.js"></script>
+  <script src="assets/js/i18n.js"></script>
+  <script src="assets/js/lang-switcher.js"></script>
+  <script src="assets/js/auth.js"></script>
+  <script src="assets/js/trailer.js"></script>
+  <script src="assets/js/movie.js"></script>
+  <script>
+    const yearEl = document.getElementById('footer-year');
+    if (yearEl) yearEl.textContent = new Date().getFullYear();
+  </script>
+</body>
+</html>

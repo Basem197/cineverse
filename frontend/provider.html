@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>المنصة — CineVerse</title>
+  <meta name="description" content="تصفح المحتوى الرسمي حسب المنصة على CineVerse">
+  <link rel="icon" type="image/svg+xml" href="assets/images/logo.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="assets/css/base.css">
+  <link rel="stylesheet" href="assets/css/layout.css">
+  <link rel="stylesheet" href="assets/css/components.css">
+  <link rel="stylesheet" href="assets/css/rtl.css">
+  <style>
+    .provider-hero {
+      padding-block: var(--sp-10) var(--sp-6);
+      background: linear-gradient(180deg, var(--bg-secondary) 0%, var(--bg-primary) 100%);
+      border-bottom: 1px solid var(--border);
+    }
+    .provider-hero__inner {
+      display: flex;
+      align-items: center;
+      gap: var(--sp-5);
+      flex-wrap: wrap;
+    }
+    .provider-hero__logo {
+      width: 80px; height: 80px;
+      border-radius: var(--radius-lg);
+      background-color: var(--bg-elevated);
+      display: grid; place-items: center;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+    .provider-hero__logo img { width: 100%; height: 100%; object-fit: cover; }
+    .provider-hero__info { flex: 1; min-width: 220px; }
+    .provider-hero__title {
+      font-size: var(--fs-4xl);
+      font-weight: var(--fw-extrabold);
+      letter-spacing: -0.02em;
+      margin-bottom: var(--sp-2);
+    }
+    .provider-hero__title span { color: var(--brand); }
+    .provider-hero__meta { color: var(--text-muted); font-size: var(--fs-sm); }
+    .provider-hero__cta { flex-shrink: 0; }
+
+    .filters-bar {
+      display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-3);
+      padding-block: var(--sp-5);
+      position: sticky; top: var(--header-h);
+      background-color: var(--bg-primary);
+      z-index: 50;
+      border-bottom: 1px solid var(--divider);
+    }
+    .filter-tabs {
+      display: inline-flex;
+      background-color: var(--bg-tertiary);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-full);
+      padding: 3px; gap: 2px;
+    }
+    .filter-tab {
+      padding: 7px 16px;
+      border-radius: var(--radius-full);
+      font-size: var(--fs-sm); font-weight: var(--fw-medium);
+      color: var(--text-secondary);
+      transition: all var(--t-fast);
+      cursor: pointer; border: none; background: none;
+    }
+    .filter-tab:hover { color: var(--text-primary); }
+    .filter-tab.is-active { background-color: var(--brand); color: #fff; }
+
+    .sort-select {
+      height: 38px; padding-inline: var(--sp-3);
+      background-color: var(--bg-tertiary);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      color: var(--text-primary);
+      font-size: var(--fs-sm);
+      cursor: pointer; outline: none;
+      appearance: none;
+      padding-inline-end: 30px;
+      background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23a8a8b8' stroke-width='2' stroke-linecap='round'><path d='m6 9 6 6 6-6'/></svg>");
+      background-repeat: no-repeat;
+      background-position: right 10px center;
+      background-size: 12px;
+    }
+    html[dir="rtl"] .sort-select {
+      background-position: left 10px center;
+      padding-inline-end: var(--sp-3);
+      padding-inline-start: 30px;
+    }
+
+    .filters-bar__right {
+      margin-inline-start: auto;
+      display: flex; align-items: center; gap: var(--sp-3);
+      color: var(--text-muted); font-size: var(--fs-sm);
+    }
+    .results-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      gap: var(--sp-4);
+      margin-block: var(--sp-6) var(--sp-10);
+    }
+    @media (min-width: 640px) {
+      .results-grid { grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: var(--sp-5); }
+    }
+    @media (min-width: 1024px) {
+      .results-grid { grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); }
+    }
+    .pagination {
+      display: flex; justify-content: center; align-items: center;
+      gap: var(--sp-2); padding-block: var(--sp-6) var(--sp-10);
+    }
+    .pagination__btn {
+      min-width: 40px; height: 40px; padding-inline: var(--sp-3);
+      border-radius: var(--radius-md); background-color: var(--bg-elevated);
+      border: 1px solid var(--border); color: var(--text-primary);
+      font-size: var(--fs-sm); font-weight: var(--fw-medium);
+      transition: all var(--t-fast);
+      display: inline-flex; align-items: center; justify-content: center;
+    }
+    .pagination__btn:hover:not(:disabled) {
+      background-color: var(--bg-hover); border-color: var(--border-strong);
+    }
+    .pagination__btn:disabled { opacity: 0.4; cursor: not-allowed; }
+    .pagination__btn.is-active {
+      background-color: var(--brand); border-color: var(--brand); color: #fff;
+    }
+    .pagination__info { color: var(--text-muted); font-size: var(--fs-sm); margin-inline: var(--sp-3); }
+
+    .country-select {
+      height: 40px; padding-inline: var(--sp-3); padding-inline-end: var(--sp-5);
+      background-color: var(--bg-tertiary); border: 1px solid var(--border);
+      border-radius: var(--radius-md); color: var(--text-primary);
+      font-size: var(--fs-sm); cursor: pointer; appearance: none;
+      background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23a8a8b8' stroke-width='2' stroke-linecap='round'><path d='m6 9 6 6 6-6'/></svg>");
+      background-repeat: no-repeat; background-position: right 10px center; background-size: 12px; padding-right: 30px;
+    }
+    html[dir="rtl"] .country-select { background-position: left 10px center; padding-right: var(--sp-3); padding-left: 30px; }
+    @media (max-width: 640px) { .country-select { display: none; } }
+    .site-header__menu-btn { background-color: var(--bg-tertiary); border: 1px solid var(--border); }
+  </style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container site-header__inner">
+    <a href="index.html" class="site-header__logo" aria-label="CineVerse">
+      <img src="assets/images/logo.svg" alt="CineVerse" width="180" height="42">
+    </a>
+    <nav class="site-header__nav" id="primary-nav" aria-label="Primary">
+      <a href="index.html" data-i18n="nav.home"></a>
+      <a href="search.html?type=movie" data-i18n="nav.movies"></a>
+      <a href="search.html?type=tv" data-i18n="nav.series"></a>
+      <a href="index.html#genres" data-i18n="nav.genres"></a>
+      <a href="index.html#providers" data-i18n="nav.providers"></a>
+    </nav>
+    <div class="site-header__actions">
+      <select class="country-select" id="country-select" aria-label="Country"></select>
+      <div id="header-user-slot"></div>
+      <button class="site-header__menu-btn" id="menu-toggle" aria-label="Menu" aria-expanded="false">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<main>
+  <section class="provider-hero">
+    <div class="container">
+      <div class="provider-hero__inner">
+        <div class="provider-hero__logo" id="provider-logo">
+          <div class="spinner" style="width:22px;height:22px;border-width:2px;"></div>
+        </div>
+        <div class="provider-hero__info">
+          <h1 class="provider-hero__title" id="provider-name">تحميل...</h1>
+          <p class="provider-hero__meta" id="provider-meta"></p>
+        </div>
+        <a class="btn btn--primary btn--lg provider-hero__cta" id="provider-official-btn"
+           href="#" target="_blank" rel="noopener noreferrer" style="display:none;">
+          زيارة الموقع الرسمي
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="container">
+      <div class="filters-bar">
+        <div class="filter-tabs" role="tablist" aria-label="Type">
+          <button class="filter-tab" data-type="movie" role="tab">
+            <span data-i18n="card.movie"></span>
+          </button>
+          <button class="filter-tab" data-type="tv" role="tab">
+            <span data-i18n="card.series"></span>
+          </button>
+        </div>
+
+        <select class="sort-select" id="sort-select" aria-label="Sort">
+          <option value="popularity.desc">الأكثر شعبية</option>
+          <option value="vote_average.desc">الأعلى تقييمًا</option>
+          <option value="primary_release_date.desc">الأحدث</option>
+        </select>
+
+        <div class="filters-bar__right" id="results-info"></div>
+      </div>
+
+      <div id="results" class="results-grid" aria-busy="false"></div>
+      <nav class="pagination" id="pagination" aria-label="Pagination"></nav>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <div class="site-footer__grid">
+      <div class="site-footer__brand">
+        <img src="assets/images/logo.svg" alt="CineVerse" style="height:38px;width:auto;">
+        <p data-i18n="footer.tagline"></p>
+      </div>
+      <div>
+        <h3 class="site-footer__heading" data-i18n="footer.browse"></h3>
+        <div class="site-footer__links">
+          <a href="search.html?type=movie" data-i18n="nav.movies"></a>
+          <a href="search.html?type=tv" data-i18n="nav.series"></a>
+        </div>
+      </div>
+      <div>
+        <h3 class="site-footer__heading" data-i18n="footer.about"></h3>
+        <div class="site-footer__links">
+          <a href="about.html" data-i18n="footer.about"></a>
+          <a href="contact.html" data-i18n="footer.contact"></a>
+        </div>
+      </div>
+      <div>
+        <h3 class="site-footer__heading" data-i18n="footer.legal"></h3>
+        <div class="site-footer__links">
+          <a href="privacy.html" data-i18n="footer.privacy"></a>
+          <a href="terms.html" data-i18n="footer.terms"></a>
+          <a href="affiliate-disclosure.html" data-i18n="footer.affiliate"></a>
+        </div>
+      </div>
+    </div>
+    <div class="site-footer__bottom">
+      <span>© <span id="footer-year"></span> CineVerse — <span data-i18n="footer.rights"></span></span>
+      <span>Powered by TMDB</span>
+    </div>
+  </div>
+</footer>
+
+<script src="assets/js/api.js"></script>
+<script src="assets/js/i18n.js"></script>
+<script src="assets/js/lang-switcher.js"></script>
+<script src="assets/js/auth.js"></script>
+<script src="assets/js/provider.js"></script>
+<script>
+  document.getElementById('footer-year').textContent = new Date().getFullYear();
+</script>
+</body>
+</html>
