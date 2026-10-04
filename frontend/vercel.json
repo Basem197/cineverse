@@ -1,6 +1,5 @@
 {
   "version": 2,
-  "public": false,
   "cleanUrls": true,
   "trailingSlash": false,
   "headers": [
@@ -25,8 +24,5 @@
         { "key": "Cache-Control", "value": "public, max-age=0, must-revalidate" }
       ]
     }
-  ],
-  "rewrites": [
-    { "source": "/api/(.*)", "destination": "https://cineverse.alwaysdata.net/api/$1" }
   ]
 }
