@@ -1,42 +1,61 @@
-# Environment & Secrets
+# ============================================================
+# CineVerse — Root .gitignore
+# ============================================================
+
+# ---------- Environment & Secrets ----------
 .env
 .env.local
 .env.*.local
 *.env
+!.env.example
 
-# Dependencies
+# ---------- Dependencies ----------
 node_modules/
 vendor/
 composer.lock
 
-# Logs
+# ---------- Logs ----------
 *.log
 logs/
 api/storage/logs/*.log
 
-# Cache
+# ---------- Cache ----------
 api/storage/cache/*
 !api/storage/cache/.gitkeep
 
-# OS Files
+# ---------- OS Files ----------
 .DS_Store
 Thumbs.db
 desktop.ini
 
-# IDE
+# ---------- IDE ----------
 .vscode/
 .idea/
 *.swp
 *.swo
+*.sublime-project
+*.sublime-workspace
 
-# Build / Dist
+# ---------- Build / Dist ----------
 dist/
 build/
 
-# Backups
+# ---------- Backups ----------
 *.bak
 *.backup
 *.sql.gz
+backups/
 
-# Test Coverage
+# ---------- Upload Staging ----------
+upload/
+
+# ---------- ZIPs (local artifacts) ----------
+*.zip
+
+# ---------- Test Coverage ----------
 coverage/
+
+# ---------- Sensitive Debug Files ----------
+test-env.php
+debug.php
+debug-*.php
