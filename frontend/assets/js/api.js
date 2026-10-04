@@ -9,18 +9,18 @@
   // ---------- Configuration ----------
   // Auto-detect base URL from the current page location.
   //
-  // Local dev:   http://localhost/cineverse/frontend/  → API at /cineverse/api/public
-  // Production:  https://cineverse.vercel.app/         → API at InfinityFree
+  // Local dev:   http://localhost/cineverse/frontend/  → direct to local API
+  // Production:  https://cineverse-frontend-1bwp.vercel.app  → serverless proxy
   const API_BASE = (() => {
     const { protocol, hostname, port } = window.location;
 
-    // Local XAMPP
+    // Local XAMPP — direct API
     if (hostname === 'localhost' || hostname === '127.0.0.1') {
       return `${protocol}//${hostname}${port ? ':' + port : ''}/cineverse/api/public`;
     }
 
-    // Production — InfinityFree API
-    return 'https://cineverse-api.infinityfreeapp.com/public';
+    // Production (Vercel) — use serverless proxy
+    return '/api';
   })();
 
   // ---------- Core fetch wrapper ----------
@@ -126,6 +126,7 @@
       return request(`/api/titles/${id}${qs ? '?' + qs : ''}`);
     },
 
+    // Trailer
     trailer: (id, opts = {}) => {
       const params = new URLSearchParams();
       if (opts.type) params.set('type', opts.type);
@@ -134,15 +135,17 @@
       return request(`/api/titles/${id}/trailer${qs ? '?' + qs : ''}`);
     },
 
+    // Availability (where to watch)
     availability: (id, countryCode, opts = {}) => {
       const params = new URLSearchParams({ country: countryCode });
       if (opts.type) params.set('type', opts.type);
       return request(`/api/titles/${id}/availability?${params}`);
     },
 
+    // Family guide
     familyGuide: (id) => request(`/api/titles/${id}/family-guide`),
 
-    // Season (episodes of a specific season)
+    // Season episodes
     season: (titleId, seasonNumber, opts = {}) => {
       const params = new URLSearchParams();
       if (opts.lang) params.set('lang', opts.lang);
