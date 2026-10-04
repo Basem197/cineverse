@@ -1,21 +1,23 @@
 // Vercel Serverless Function — CineVerse API Proxy
-// Bypasses InfinityFree anti-bot by mimicking browser requests.
+// CommonJS format (Vercel default when no package.json type)
 
-export default async function handler(req, res) {
-  // CORS headers
+module.exports = async function handler(req, res) {
+  // CORS preflight
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');
   res.setHeader('Access-Control-Allow-Credentials', 'true');
 
-  // Handle preflight
   if (req.method === 'OPTIONS') {
     return res.status(204).end();
   }
 
-  // Build target URL
-  const pathParts = req.query.path || [];
-  const path = Array.isArray(pathParts) ? pathParts.join('/') : pathParts;
+  // Extract path: /api/api/countries -> ['api', 'countries']
+  let pathSegments = req.query.path;
+  if (!Array.isArray(pathSegments)) {
+    pathSegments = pathSegments ? [pathSegments] : [];
+  }
+  const apiPath = pathSegments.join('/');
 
   // Build query string (exclude 'path')
   const params = new URLSearchParams();
@@ -24,7 +26,7 @@ export default async function handler(req, res) {
   });
   const qs = params.toString() ? '?' + params.toString() : '';
 
-  const targetUrl = `https://cineverse-api.infinityfreeapp.com/public/${path}${qs}`;
+  const targetUrl = `https://cineverse-api.infinityfreeapp.com/public/${apiPath}${qs}`;
 
   try {
     const fetchOptions = {
@@ -41,16 +43,15 @@ export default async function handler(req, res) {
       redirect: 'follow',
     };
 
-    // Forward body for write methods
     if (['POST', 'PUT', 'PATCH'].includes(req.method)) {
-      fetchOptions.body = typeof req.body === 'string' ? req.body : JSON.stringify(req.body || {});
+      const body = typeof req.body === 'string' ? req.body : JSON.stringify(req.body || {});
+      fetchOptions.body = body;
       fetchOptions.headers['Content-Type'] = 'application/json';
     }
 
     const response = await fetch(targetUrl, fetchOptions);
     const text = await response.text();
 
-    // Try to parse as JSON for cleaner output
     let body = text;
     try { body = JSON.parse(text); } catch {}
 
@@ -65,4 +66,4 @@ export default async function handler(req, res) {
       },
     });
   }
-}
+};
