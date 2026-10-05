@@ -1,0 +1,59 @@
+/* ============================================================
+   CineVerse — RTL Adjustments
+   Loaded only when <html dir="rtl">
+   ============================================================ */
+
+/* Mirror directional icons */
+html[dir="rtl"] .icon-directional {
+  transform: scaleX(-1);
+}
+
+/* Section title bar — flip to the right side */
+html[dir="rtl"] .section__title {
+  flex-direction: row;
+}
+
+/* Hero eyebrow line: appears on the right */
+html[dir="rtl"] .hero__eyebrow::before {
+  left: auto;
+  right: 0;
+}
+
+/* Search icon — keep LTR ordering of icon/input visually */
+html[dir="rtl"] .search-box__input {
+  text-align: right;
+}
+
+/* Modal close button alignment is automatic (logical properties) */
+
+/* Cards: rating badge stays top-right in LTR; in RTL move to top-left */
+html[dir="rtl"] .card__rating {
+  inset-inline-end: auto;
+  inset-inline-start: var(--sp-2);
+}
+
+html[dir="rtl"] .card__type {
+  inset-inline-start: auto;
+  inset-inline-end: var(--sp-2);
+}
+
+/* Horizontal scroll rows: reverse direction so the first item starts on the right */
+html[dir="rtl"] .scroll-row {
+  direction: rtl;
+}
+
+/* Text alignment inside section header */
+html[dir="rtl"] .section__header {
+  text-align: start;
+}
+
+/* Numeric values should stay LTR */
+html[dir="rtl"] .num,
+html[dir="rtl"] .card__rating,
+html[dir="rtl"] .card__meta,
+html[dir="rtl"] time {
+  direction: ltr;
+  unicode-bidi: embed;
+}
+
+/* Toasts remain centered in RTL; no additional mirroring needed */
