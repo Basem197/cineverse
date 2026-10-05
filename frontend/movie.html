@@ -170,6 +170,23 @@
       gap: var(--sp-2);
       margin-top: var(--sp-2);
     }
+
+    /* VIP Badge */
+    .vip-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      background: linear-gradient(135deg, #f5c518 0%, #ff8a4c 100%);
+      color: #000;
+      font-weight: 800;
+      font-size: var(--fs-xs);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      border-radius: var(--radius-full);
+      box-shadow: 0 4px 12px rgba(245, 197, 24, 0.35);
+      width: fit-content;
+    }
     
     .title-content {
       display: grid;
@@ -365,6 +382,23 @@
         gap: var(--sp-5);
       }
     }
+
+    /* Ad Slot */
+    .ad-slot {
+      margin-block: var(--sp-8);
+    }
+
+    .ad-slot__inner {
+      min-height: 90px;
+      background: var(--bg-secondary);
+      border: 1px dashed var(--border-strong);
+      border-radius: var(--radius-md);
+      display: grid;
+      place-items: center;
+      color: var(--text-muted);
+      font-size: var(--fs-sm);
+      padding: var(--sp-4);
+    }
     
     .country-select {
       height: 40px;
@@ -405,6 +439,7 @@
 </head>
 
 <body>
+  <!-- ============ Header ============ -->
   <header class="site-header">
     <div class="container site-header__inner">
       <a href="index.html" class="site-header__logo" aria-label="CineVerse">
@@ -430,6 +465,7 @@
     </div>
   </header>
 
+  <!-- ============ Main ============ -->
   <main id="main" aria-busy="true">
 
     <div class="container loading-block" id="loading-state">
@@ -458,6 +494,9 @@
 
             <div class="title-hero__info">
               <div class="title-hero__eyebrow" id="title-type-eyebrow"></div>
+
+              <!-- VIP Badge -->
+              <span id="vip-badge" class="vip-badge" style="display:none;">👑 VIP</span>
 
               <h1 class="title-hero__title" id="title-name"></h1>
               <div class="title-hero__original-title" id="title-original" style="display:none;"></div>
@@ -498,6 +537,11 @@
               <p class="overview-text" id="title-overview"></p>
             </section>
 
+            <!-- Ad Slot (inline, hides if hide_ads = true) -->
+            <div class="ad-slot" id="ad-slot-movie-inline" data-ad-slot="movie-inline">
+              <div class="ad-slot__inner">مساحة إعلانية — Inline Ad</div>
+            </div>
+
             <section id="section-cast" style="display:none;">
               <h2 class="content-block__title">طاقم التمثيل</h2>
               <div class="cast-scroll" id="cast-list"></div>
@@ -516,6 +560,14 @@
           </div>
 
           <aside class="title-content__aside">
+
+            <!-- Watch Options (Admin — appears when admin adds Affiliate links) -->
+            <section id="section-watch-options" style="display:none;">
+              <h2 class="content-block__title">شاهد الآن</h2>
+              <div class="watch-box">
+                <div id="watch-options-list"></div>
+              </div>
+            </section>
 
             <section>
               <h2 class="content-block__title">أين تشاهده</h2>
@@ -544,6 +596,7 @@
 
   </main>
 
+  <!-- ============ Trailer Modal ============ -->
   <div class="modal" id="trailer-modal" role="dialog" aria-modal="true" aria-labelledby="trailer-title" aria-hidden="true">
     <div class="modal__backdrop" data-close-modal></div>
     <div class="modal__dialog">
@@ -562,6 +615,7 @@
     </div>
   </div>
 
+  <!-- ============ Footer ============ -->
   <footer class="site-footer">
     <div class="container">
       <div class="site-footer__grid">

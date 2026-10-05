@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard — CineVerse</title>
+  <meta name="robots" content="noindex,nofollow">
+
+  <!-- Tailwind CSS via CDN (admin only — main site uses custom CSS) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              DEFAULT: '#ff3d47',
+              hover:   '#ff5c64',
+              soft:    'rgba(255, 61, 71, 0.12)',
+            },
+            dark: {
+              950: '#0a0a0f',
+              900: '#101018',
+              850: '#141420',
+              800: '#181822',
+              700: '#22222e',
+              600: '#2a2a38',
+              500: '#3a3a48',
+            },
+            surface: {
+              DEFAULT: '#181822',
+              hover:   '#22222e',
+              border:  'rgba(255, 255, 255, 0.08)',
+            }
+          },
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+            ar:   ['Cairo', 'system-ui', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    body { font-family: 'Inter', system-ui, sans-serif; }
+    .scrollbar-thin::-webkit-scrollbar { width: 8px; height: 8px; }
+    .scrollbar-thin::-webkit-scrollbar-track { background: transparent; }
+    .scrollbar-thin::-webkit-scrollbar-thumb { background: #2a2a38; border-radius: 4px; }
+    .scrollbar-thin::-webkit-scrollbar-thumb:hover { background: #3a3a48; }
+
+    /* Modal animation */
+    .modal { animation: modal-in 200ms ease; }
+    @keyframes modal-in {
+      from { opacity: 0; transform: scale(0.96) translateY(8px); }
+      to   { opacity: 1; transform: scale(1) translateY(0); }
+    }
+
+    /* Table hover */
+    tbody tr:hover { background-color: rgba(255,255,255,0.02); }
+  </style>
+</head>
+
+<body class="bg-dark-950 text-white min-h-screen">
+
+  <!-- ============================================ -->
+  <!-- Loading screen (before auth check)           -->
+  <!-- ============================================ -->
+  <div id="loading-screen" class="fixed inset-0 bg-dark-950 flex items-center justify-center z-50">
+    <div class="text-center">
+      <div class="inline-block w-12 h-12 border-4 border-dark-700 border-t-brand rounded-full animate-spin"></div>
+      <p class="mt-4 text-dark-400 text-sm">Checking access...</p>
+    </div>
+  </div>
+
+  <!-- ============================================ -->
+  <!-- Access denied screen                          -->
+  <!-- ============================================ -->
+  <div id="denied-screen" class="hidden fixed inset-0 bg-dark-950 flex items-center justify-center z-50 p-4">
+    <div class="max-w-md w-full text-center">
+      <div class="text-6xl mb-4">🔒</div>
+      <h1 class="text-2xl font-bold mb-2">Access Denied</h1>
+      <p class="text-gray-400 mb-6">You need admin privileges to access this page.</p>
+      <a href="index.html" class="inline-block px-6 py-3 bg-brand hover:bg-brand-hover rounded-lg font-semibold transition">
+        Back to Home
+      </a>
+    </div>
+  </div>
+
+  <!-- ============================================ -->
+  <!-- Main App (hidden until authorized)            -->
+  <!-- ============================================ -->
+  <div id="app" class="hidden">
+
+    <!-- Sidebar -->
+    <aside class="fixed left-0 top-0 h-screen w-64 bg-dark-900 border-r border-surface-border z-40 flex flex-col">
+      <!-- Logo -->
+      <div class="h-16 flex items-center gap-3 px-6 border-b border-surface-border">
+        <div class="w-8 h-8 rounded-lg bg-brand flex items-center justify-center">
+          <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M8 5v14l11-7z"/>
+          </svg>
+        </div>
+        <div>
+          <div class="font-bold text-sm leading-tight">CineVerse</div>
+          <div class="text-[10px] text-gray-500 uppercase tracking-wider">Admin Panel</div>
+        </div>
+      </div>
+
+      <!-- Navigation -->
+      <nav class="flex-1 px-3 py-4 space-y-1 overflow-y-auto scrollbar-thin">
+        <a href="#overview" data-view="overview"
+           class="nav-item active flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-gray-300 hover:text-white hover:bg-dark-800 transition">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <rect x="3" y="3" width="7" height="9" rx="1"/>
+            <rect x="14" y="3" width="7" height="5" rx="1"/>
+            <rect x="14" y="12" width="7" height="9" rx="1"/>
+            <rect x="3" y="16" width="7" height="5" rx="1"/>
+          </svg>
+          Overview
+        </a>
+        <a href="#movies" data-view="movies"
+           class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-gray-300 hover:text-white hover:bg-dark-800 transition">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <rect x="3" y="4" width="18" height="16" rx="2"/>
+            <path d="M3 10h18M10 20V4"/>
+          </svg>
+          Movies
+        </a>
+        <a href="#series" data-view="series"
+           class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-gray-300 hover:text-white hover:bg-dark-800 transition">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <rect x="2" y="7" width="20" height="14" rx="2"/>
+            <path d="M8 3v4M16 3v4M2 13h20"/>
+          </svg>
+          Series
+        </a>
+        <a href="#users" data-view="users"
+           class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-gray-300 hover:text-white hover:bg-dark-800 transition">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <circle cx="12" cy="8" r="4"/>
+            <path d="M4 21a8 8 0 0116 0"/>
+          </svg>
+          Users
+        </a>
+        <a href="#settings" data-view="settings"
+           class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-gray-300 hover:text-white hover:bg-dark-800 transition">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="3"/>
+            <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06A1.65 1.65 0 0015 19.4a1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.6 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.6a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9c.66.16 1.14.75 1.14 1.45v1.1c0 .7-.48 1.29-1.14 1.45z"/>
+          </svg>
+          Settings
+        </a>
+      </nav>
+
+      <!-- Bottom actions -->
+      <div class="p-3 border-t border-surface-border space-y-1">
+        <a href="index.html" target="_blank"
+           class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-gray-400 hover:text-white hover:bg-dark-800 transition">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/>
+            <path d="M15 3h6v6M10 14L21 3"/>
+          </svg>
+          View Site
+        </a>
+        <button id="logout-btn"
+                class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-red-400 hover:text-red-300 hover:bg-red-500/10 transition">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/>
+            <polyline points="16 17 21 12 16 7"/>
+            <line x1="21" y1="12" x2="9" y2="12"/>
+          </svg>
+          Logout
+        </button>
+      </div>
+    </aside>
+
+    <!-- Main content -->
+    <div class="ml-64">
+
+      <!-- Top bar -->
+      <header class="h-16 bg-dark-900/80 backdrop-blur border-b border-surface-border sticky top-0 z-30 flex items-center justify-between px-8">
+        <div>
+          <h1 id="page-title" class="text-lg font-semibold">Overview</h1>
+          <p id="page-subtitle" class="text-xs text-gray-500">Welcome back, admin</p>
+        </div>
+
+        <div class="flex items-center gap-4">
+          <!-- Quick search -->
+          <div class="relative">
+            <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <circle cx="11" cy="11" r="7"/>
+              <path d="m21 21-4.35-4.35"/>
+            </svg>
+            <input type="search" id="global-search" placeholder="Search movies..."
+                   class="w-64 h-10 pl-10 pr-4 bg-dark-800 border border-surface-border rounded-lg text-sm text-white placeholder-gray-500 focus:outline-none focus:border-brand transition">
+          </div>
+
+          <!-- Admin avatar -->
+          <div class="flex items-center gap-3 pl-4 border-l border-surface-border">
+            <div class="text-right hidden sm:block">
+              <div id="admin-name" class="text-sm font-medium">Admin</div>
+              <div id="admin-email" class="text-xs text-gray-500">—</div>
+            </div>
+            <div class="w-10 h-10 rounded-full bg-gradient-to-br from-brand to-orange-400 flex items-center justify-center font-bold text-white">
+              A
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <!-- Content area -->
+      <main class="p-8">
+
+        <!-- ============================================ -->
+        <!-- View: Overview                                -->
+        <!-- ============================================ -->
+        <section id="view-overview" class="view">
+          <!-- Stats Cards -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+            <div class="bg-dark-900 border border-surface-border rounded-xl p-5">
+              <div class="flex items-center justify-between mb-3">
+                <div class="w-10 h-10 rounded-lg bg-brand-soft flex items-center justify-center">
+                  <svg class="w-5 h-5 text-brand" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <rect x="3" y="4" width="18" height="16" rx="2"/>
+                    <path d="M3 10h18"/>
+                  </svg>
+                </div>
+                <span class="text-xs text-green-400 font-medium">+12%</span>
+              </div>
+              <div class="text-3xl font-bold" id="stat-movies">—</div>
+              <div class="text-sm text-gray-500 mt-1">Total Movies</div>
+            </div>
+
+            <div class="bg-dark-900 border border-surface-border rounded-xl p-5">
+              <div class="flex items-center justify-between mb-3">
+                <div class="w-10 h-10 rounded-lg bg-blue-500/10 flex items-center justify-center">
+                  <svg class="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <rect x="2" y="7" width="20" height="14" rx="2"/>
+                    <path d="M8 3v4M16 3v4M2 13h20"/>
+                  </svg>
+                </div>
+                <span class="text-xs text-green-400 font-medium">+5%</span>
+              </div>
+              <div class="text-3xl font-bold" id="stat-series">—</div>
+              <div class="text-sm text-gray-500 mt-1">Total Series</div>
+            </div>
+
+            <div class="bg-dark-900 border border-surface-border rounded-xl p-5">
+              <div class="flex items-center justify-between mb-3">
+                <div class="w-10 h-10 rounded-lg bg-gold/10 flex items-center justify-center">
+                  <svg class="w-5 h-5 text-yellow-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <circle cx="12" cy="8" r="4"/>
+                    <path d="M4 21a8 8 0 0116 0"/>
+                  </svg>
+                </div>
+                <span class="text-xs text-gray-500 font-medium">This month</span>
+              </div>
+              <div class="text-3xl font-bold" id="stat-users">—</div>
+              <div class="text-sm text-gray-500 mt-1">Total Users</div>
+            </div>
+
+            <div class="bg-dark-900 border border-surface-border rounded-xl p-5">
+              <div class="flex items-center justify-between mb-3">
+                <div class="w-10 h-10 rounded-lg bg-purple-500/10 flex items-center justify-center">
+                  <svg class="w-5 h-5 text-purple-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                  </svg>
+                </div>
+                <span class="text-xs text-gray-500 font-medium">avg</span>
+              </div>
+              <div class="text-3xl font-bold" id="stat-rating">—</div>
+              <div class="text-sm text-gray-500 mt-1">Avg Rating</div>
+            </div>
+          </div>
+
+          <!-- Quick Actions -->
+          <div class="bg-dark-900 border border-surface-border rounded-xl p-6 mb-8">
+            <h2 class="text-base font-semibold mb-4">Quick Actions</h2>
+            <div class="flex flex-wrap gap-3">
+              <button data-action="add-title" class="px-4 py-2.5 bg-brand hover:bg-brand-hover rounded-lg text-sm font-semibold transition flex items-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                  <path d="M12 5v14M5 12h14"/>
+                </svg>
+                Add New Title
+              </button>
+              <button data-action="sync" class="px-4 py-2.5 bg-dark-800 hover:bg-dark-700 border border-surface-border rounded-lg text-sm font-medium transition flex items-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path d="M21 12a9 9 0 11-6.219-8.56"/>
+                </svg>
+                Sync From TMDB
+              </button>
+              <button data-action="flush-cache" class="px-4 py-2.5 bg-dark-800 hover:bg-dark-700 border border-surface-border rounded-lg text-sm font-medium transition flex items-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/>
+                </svg>
+                Flush Cache
+              </button>
+            </div>
+          </div>
+
+          <!-- Recent Activity (placeholder) -->
+          <div class="bg-dark-900 border border-surface-border rounded-xl">
+            <div class="p-6 border-b border-surface-border">
+              <h2 class="text-base font-semibold">Recent Activity</h2>
+            </div>
+            <div class="p-6 text-sm text-gray-500 text-center py-12">
+              No recent activity yet.
+            </div>
+          </div>
+        </section>
+
+        <!-- ============================================ -->
+        <!-- View: Movies                                  -->
+        <!-- ============================================ -->
+        <section id="view-movies" class="view hidden">
+          <!-- Toolbar -->
+          <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
+            <div class="flex items-center gap-2">
+              <span class="text-sm text-gray-400">Filter:</span>
+              <select id="filter-year" class="h-10 px-3 bg-dark-800 border border-surface-border rounded-lg text-sm focus:outline-none focus:border-brand">
+                <option value="">All Years</option>
+                <option value="2026">2026</option>
+                <option value="2025">2025</option>
+                <option value="2024">2024</option>
+                <option value="2023">2023</option>
+              </select>
+              <select id="filter-vip" class="h-10 px-3 bg-dark-800 border border-surface-border rounded-lg text-sm focus:outline-none focus:border-brand">
+                <option value="">All</option>
+                <option value="vip">VIP Only</option>
+                <option value="free">Free</option>
+              </select>
+            </div>
+            <button data-action="add-title" class="px-4 py-2.5 bg-brand hover:bg-brand-hover rounded-lg text-sm font-semibold transition flex items-center gap-2">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                <path d="M12 5v14M5 12h14"/>
+              </svg>
+              Add Movie
+            </button>
+          </div>
+
+          <!-- Table -->
+          <div class="bg-dark-900 border border-surface-border rounded-xl overflow-hidden">
+            <div class="overflow-x-auto scrollbar-thin">
+              <table class="w-full text-sm">
+                <thead class="bg-dark-850 border-b border-surface-border">
+                  <tr class="text-left text-xs font-semibold text-gray-400 uppercase tracking-wider">
+                    <th class="px-4 py-3 w-12">
+                      <input type="checkbox" class="rounded bg-dark-700 border-surface-border">
+                    </th>
+                    <th class="px-4 py-3 w-20">Poster</th>
+                    <th class="px-4 py-3">Title</th>
+                    <th class="px-4 py-3 w-24">Year</th>
+                    <th class="px-4 py-3 w-24">Rating</th>
+                    <th class="px-4 py-3 w-32">Trailer</th>
+                    <th class="px-4 py-3 w-24">VIP</th>
+                    <th class="px-4 py-3 w-32 text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="movies-table-body" class="divide-y divide-surface-border">
+                  <tr>
+                    <td colspan="8" class="px-4 py-12 text-center text-gray-500">
+                      <div class="inline-block w-6 h-6 border-2 border-dark-600 border-t-brand rounded-full animate-spin"></div>
+                      <p class="mt-3 text-sm">Loading movies...</p>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Pagination -->
+          <div class="flex items-center justify-between mt-4 text-sm text-gray-400">
+            <div id="movies-count">— movies</div>
+            <div class="flex items-center gap-2">
+              <button class="px-3 py-1.5 bg-dark-800 border border-surface-border rounded-lg hover:bg-dark-700 transition disabled:opacity-40" disabled>Previous</button>
+              <span class="px-3">Page 1</span>
+              <button class="px-3 py-1.5 bg-dark-800 border border-surface-border rounded-lg hover:bg-dark-700 transition disabled:opacity-40" disabled>Next</button>
+            </div>
+          </div>
+        </section>
+
+        <!-- ============================================ -->
+        <!-- View: Series                                  -->
+        <!-- ============================================ -->
+        <section id="view-series" class="view hidden">
+          <div class="bg-dark-900 border border-surface-border rounded-xl p-12 text-center">
+            <div class="text-5xl mb-4">📺</div>
+            <h2 class="text-xl font-semibold mb-2">Series Management</h2>
+            <p class="text-gray-500 mb-6">Coming soon in Phase 11.2</p>
+          </div>
+        </section>
+
+        <!-- ============================================ -->
+        <!-- View: Users                                   -->
+        <!-- ============================================ -->
+        <section id="view-users" class="view hidden">
+          <div class="bg-dark-900 border border-surface-border rounded-xl p-12 text-center">
+            <div class="text-5xl mb-4">👥</div>
+            <h2 class="text-xl font-semibold mb-2">User Management</h2>
+            <p class="text-gray-500 mb-6">Coming soon in Phase 11.3</p>
+          </div>
+        </section>
+
+        <!-- ============================================ -->
+        <!-- View: Settings                                -->
+        <!-- ============================================ -->
+        <section id="view-settings" class="view hidden">
+          <div class="bg-dark-900 border border-surface-border rounded-xl p-12 text-center">
+            <div class="text-5xl mb-4">⚙️</div>
+            <h2 class="text-xl font-semibold mb-2">Settings</h2>
+            <p class="text-gray-500 mb-6">Coming soon in Phase 11.4</p>
+          </div>
+        </section>
+
+      </main>
+    </div>
+  </div>
+
+  <!-- ============================================ -->
+  <!-- Add/Edit Title Modal                          -->
+  <!-- ============================================ -->
+  <div id="modal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-50 items-center justify-center p-4 overflow-y-auto">
+    <div class="modal bg-dark-900 border border-surface-border rounded-2xl w-full max-w-3xl my-8">
+      <!-- Header -->
+      <div class="flex items-center justify-between p-6 border-b border-surface-border">
+        <div>
+          <h2 id="modal-title" class="text-lg font-semibold">Add New Title</h2>
+          <p class="text-xs text-gray-500 mt-0.5">Fill in the title details below</p>
+        </div>
+        <button data-close-modal class="w-9 h-9 rounded-lg hover:bg-dark-800 flex items-center justify-center transition">
+          <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path d="M18 6 6 18M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Form -->
+      <form id="title-form" class="p-6 space-y-5 max-h-[70vh] overflow-y-auto scrollbar-thin">
+
+        <!-- Title + Type row -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div class="md:col-span-2">
+            <label class="block text-sm font-medium mb-2">Title *</label>
+            <input type="text" name="title" required
+                   class="w-full h-11 px-4 bg-dark-800 border border-surface-border rounded-lg text-sm focus:outline-none focus:border-brand transition">
+          </div>
+          <div>
+            <label class="block text-sm font-medium mb-2">Type *</label>
+            <select name="type" required
+                    class="w-full h-11 px-3 bg-dark-800 border border-surface-border rounded-lg text-sm focus:outline-none focus:border-brand transition">
+              <option value="movie">Movie</option>
+              <option value="tv">Series</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- TMDB ID -->
+        <div>
+          <label class="block text-sm font-medium mb-2">
+            TMDB ID
+            <span class="text-xs text-gray-500 font-normal">(optional — for auto-sync)</span>
+          </label>
+          <input type="number" name="tmdb_id" placeholder="e.g. 27205"
+                 class="w-full h-11 px-4 bg-dark-800 border border-surface-border rounded-lg text-sm focus:outline-none focus:border-brand transition">
+        </div>
+
+        <!-- Poster + Backdrop -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium mb-2">Poster URL</label>
+            <input type="url" name="poster" placeholder="https://image.tmdb.org/..."
+                   class="w-full h-11 px-4 bg-dark-800 border border-surface-border rounded-lg text-sm focus:outline-none focus:border-brand transition">
+          </div>
+          <div>
+            <label class="block text-sm font-medium mb-2">Backdrop URL</label>
+            <input type="url" name="backdrop" placeholder="https://image.tmdb.org/..."
+                   class="w-full h-11 px-4 bg-dark-800 border border-surface-border rounded-lg text-sm focus:outline-none focus:border-brand transition">
+          </div>
+        </div>
+
+        <!-- Description -->
+        <div>
+          <label class="block text-sm font-medium mb-2">Description</label>
+          <textarea name="overview" rows="4"
+                    class="w-full px-4 py-3 bg-dark-800 border border-surface-border rounded-lg text-sm focus:outline-none focus:border-brand transition resize-none"></textarea>
+        </div>
+
+        <!-- Year + Rating -->
+        <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+          <div>
+            <label class="block text-sm font-medium mb-2">Year</label>
+            <input type="number" name="year" min="1900" max="2100"
+                   class="w-full h-11 px-4 bg-dark-800 border border-surface-border rounded-lg text-sm focus:outline-none focus:border-brand transition">
+          </div>
+          <div>
+            <label class="block text-sm font-medium mb-2">Rating (0-10)</label>
+            <input type="number" name="rating" step="0.1" min="0" max="10"
+                   class="w-full h-11 px-4 bg-dark-800 border border-surface-border rounded-lg text-sm focus:outline-none focus:border-brand transition">
+          </div>
+          <div>
+            <label class="block text-sm font-medium mb-2">Duration (min)</label>
+            <input type="number" name="runtime"
+                   class="w-full h-11 px-4 bg-dark-800 border border-surface-border rounded-lg text-sm focus:outline-none focus:border-brand transition">
+          </div>
+        </div>
+
+        <!-- Divider -->
+        <div class="border-t border-surface-border pt-5">
+          <h3 class="text-sm font-semibold mb-1">🎬 Trailer & Affiliate Links</h3>
+          <p class="text-xs text-gray-500 mb-4">These power the "Watch Trailer" button and "Where to Watch" section.</p>
+        </div>
+
+        <!-- Trailer URL -->
+        <div>
+          <label class="block text-sm font-medium mb-2">
+            Trailer URL
+            <span class="text-xs text-gray-500 font-normal">(YouTube embed or watch link)</span>
+          </label>
+          <input type="url" name="trailer_url" placeholder="https://www.youtube.com/watch?v=..."
+                 class="w-full h-11 px-4 bg-dark-800 border border-surface-border rounded-lg text-sm focus:outline-none focus:border-brand transition">
+        </div>
+
+        <!-- Affiliate Links -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium mb-2">
+              <span class="inline-flex items-center gap-2">
+                <span class="w-2 h-2 rounded-full bg-red-500"></span>
+                Netflix URL
+              </span>
+            </label>
+            <input type="url" name="netflix_url" placeholder="https://www.netflix.com/title/..."
+                   class="w-full h-11 px-4 bg-dark-800 border border-surface-border rounded-lg text-sm focus:outline-none focus:border-brand transition">
+          </div>
+          <div>
+            <label class="block text-sm font-medium mb-2">
+              <span class="inline-flex items-center gap-2">
+                <span class="w-2 h-2 rounded-full bg-blue-500"></span>
+                Amazon Prime URL
+              </span>
+            </label>
+            <input type="url" name="amazon_url" placeholder="https://www.primevideo.com/detail/..."
+                   class="w-full h-11 px-4 bg-dark-800 border border-surface-border rounded-lg text-sm focus:outline-none focus:border-brand transition">
+          </div>
+          <div>
+            <label class="block text-sm font-medium mb-2">
+              <span class="inline-flex items-center gap-2">
+                <span class="w-2 h-2 rounded-full bg-green-500"></span>
+                Shahid VIP URL
+              </span>
+            </label>
+            <input type="url" name="shahid_url" placeholder="https://shahid.mbc.net/..."
+                   class="w-full h-11 px-4 bg-dark-800 border border-surface-border rounded-lg text-sm focus:outline-none focus:border-brand transition">
+          </div>
+          <div>
+            <label class="block text-sm font-medium mb-2">
+              <span class="inline-flex items-center gap-2">
+                <span class="w-2 h-2 rounded-full bg-purple-500"></span>
+                Apple TV URL
+              </span>
+            </label>
+            <input type="url" name="apple_url" placeholder="https://tv.apple.com/..."
+                   class="w-full h-11 px-4 bg-dark-800 border border-surface-border rounded-lg text-sm focus:outline-none focus:border-brand transition">
+          </div>
+        </div>
+
+        <!-- Divider -->
+        <div class="border-t border-surface-border pt-5">
+          <h3 class="text-sm font-semibold mb-1">👑 Monetization</h3>
+          <p class="text-xs text-gray-500 mb-4">Control VIP access for this title.</p>
+        </div>
+
+        <!-- VIP Toggle -->
+        <div class="flex items-center justify-between p-4 bg-dark-850 border border-surface-border rounded-lg">
+          <div>
+            <div class="text-sm font-medium">VIP Only</div>
+            <div class="text-xs text-gray-500 mt-0.5">Require VIP subscription to view details</div>
+          </div>
+          <label class="relative inline-flex items-center cursor-pointer">
+            <input type="checkbox" name="is_vip" class="sr-only peer">
+            <div class="w-11 h-6 bg-dark-600 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-brand"></div>
+          </label>
+        </div>
+
+        <!-- Ad-free toggle -->
+        <div class="flex items-center justify-between p-4 bg-dark-850 border border-surface-border rounded-lg">
+          <div>
+            <div class="text-sm font-medium">Hide Ads on This Page</div>
+            <div class="text-xs text-gray-500 mt-0.5">Premium experience without banners</div>
+          </div>
+          <label class="relative inline-flex items-center cursor-pointer">
+            <input type="checkbox" name="hide_ads" class="sr-only peer">
+            <div class="w-11 h-6 bg-dark-600 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-brand"></div>
+          </label>
+        </div>
+
+      </form>
+
+      <!-- Footer -->
+      <div class="flex items-center justify-end gap-3 p-6 border-t border-surface-border">
+        <button type="button" data-close-modal
+                class="px-5 py-2.5 bg-dark-800 hover:bg-dark-700 border border-surface-border rounded-lg text-sm font-medium transition">
+          Cancel
+        </button>
+        <button type="submit" form="title-form" id="save-btn"
+                class="px-5 py-2.5 bg-brand hover:bg-brand-hover rounded-lg text-sm font-semibold transition flex items-center gap-2">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+            <path d="M20 6L9 17l-5-5"/>
+          </svg>
+          Save Title
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================ -->
+  <!-- Toast Container                               -->
+  <!-- ============================================ -->
+  <div id="toast-container" class="fixed bottom-6 right-6 z-[60] space-y-2"></div>
+
+  <!-- ============================================ -->
+  <!-- Scripts                                       -->
+  <!-- ============================================ -->
+  <script src="assets/js/api.js"></script>
+  <script src="assets/js/admin.js"></script>
+
+</body>
+</html>

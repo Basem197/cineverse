@@ -10,10 +10,7 @@
   const Trailer = window.CineVerseTrailer;
   const Auth    = window.CineVerseAuth;
 
-  if (!api) {
-    console.error('[CineVerse] api.js is not loaded');
-    return;
-  }
+  if (!api) { console.error('[CineVerse] api.js is not loaded'); return; }
 
   const $ = (sel, ctx = document) => ctx.querySelector(sel);
 
@@ -23,15 +20,11 @@
     currentSeason: null,
   };
 
-  // ---------- Helpers ----------
   function escapeHtml(str) {
     if (str == null) return '';
     return String(str)
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;')
-      .replace(/'/g, '&#039;');
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;').replace(/'/g, '&#039;');
   }
 
   function formatDate(iso) {
@@ -52,12 +45,8 @@
     return String(n);
   }
 
-  function formatRuntime(min) {
-    if (!min) return null;
-    return `${min}د`;
-  }
+  function formatRuntime(min) { if (!min) return null; return `${min}د`; }
 
-  // ---------- Hero ----------
   function renderHero(d) {
     const posterEl = $('#title-poster');
     if (d.poster) {
@@ -196,18 +185,61 @@
     });
   }
 
-  // ---------- Seasons & Episodes ----------
+  // ---------- Admin Data ----------
+  function renderAdminData(d) {
+    const vipBadge = $('#vip-badge');
+    if (vipBadge) {
+      vipBadge.style.display = d.is_vip ? 'inline-flex' : 'none';
+    }
+
+    if (d.hide_ads) {
+      document.querySelectorAll('.ad-slot').forEach((el) => { el.style.display = 'none'; });
+    }
+
+    const section = $('#section-watch-options');
+    const list = $('#watch-options-list');
+    if (!section || !list) return;
+
+    if (!Array.isArray(d.watch_options) || d.watch_options.length === 0) {
+      section.style.display = 'none';
+      return;
+    }
+
+    section.style.display = 'block';
+    list.innerHTML = '';
+
+    d.watch_options.forEach((opt) => {
+      const row = document.createElement('a');
+      row.href = opt.url;
+      row.target = '_blank';
+      row.rel = 'noopener noreferrer';
+      row.className = 'watch-offer';
+      row.style.textDecoration = 'none';
+      row.style.cursor = 'pointer';
+
+      row.innerHTML = `
+        <div class="watch-offer__info">
+          <div class="watch-offer__logo" style="background:${escapeHtml(opt.color)}; color:#fff; font-weight:800; font-size:14px;">
+            ${escapeHtml(opt.logo || opt.name.charAt(0))}
+          </div>
+          <div>
+            <div class="watch-offer__name">${escapeHtml(opt.name)}</div>
+            <div class="watch-offer__type">مشاهدة رسمية</div>
+          </div>
+        </div>
+        <span class="btn btn--primary watch-offer__cta">شاهد</span>
+      `;
+
+      list.appendChild(row);
+    });
+  }
+
   function renderSeasonsTabs(seasons) {
     const tabs = $('#seasons-tabs');
     tabs.innerHTML = '';
     const real = seasons.filter((s) => s.season_number > 0);
     const list = real.length ? real : seasons;
-
-    if (!list.length) {
-      $('#section-seasons').style.display = 'none';
-      return;
-    }
-
+    if (!list.length) { $('#section-seasons').style.display = 'none'; return; }
     list.forEach((s) => {
       const btn = document.createElement('button');
       btn.className = 'season-tab';
@@ -271,7 +303,6 @@
     }
   }
 
-  // ---------- Availability ----------
   async function renderAvailability(d) {
     const country = i18n.getCountry();
     const offersEl = $('#watch-offers');
@@ -288,14 +319,7 @@
 
       const grouped = { flatrate: [], free: [], ads: [], rent: [], buy: [] };
       data.offers.forEach((o) => { if (grouped[o.offer_type]) grouped[o.offer_type].push(o); });
-
-      const labels = {
-        flatrate: 'ضمن الاشتراك',
-        free:     'مجانًا',
-        ads:      'مجانًا بإعلانات',
-        rent:     'استئجار',
-        buy:      'شراء',
-      };
+      const labels = { flatrate: 'ضمن الاشتراك', free: 'مجانًا', ads: 'مجانًا بإعلانات', rent: 'استئجار', buy: 'شراء' };
 
       offersEl.innerHTML = '';
       Object.keys(grouped).forEach((type) => {
@@ -335,13 +359,9 @@
         attr.innerHTML = `بيانات التوفر من <a href="${escapeHtml(data.link)}" target="_blank" rel="noopener" style="color:var(--brand);">TMDB</a>`;
         offersEl.appendChild(attr);
       }
-    } catch (err) {
-      console.error('[series] availability:', err);
-      offersEl.innerHTML = `<p style="color:var(--text-muted);font-size:var(--fs-sm);">تعذر تحميل بيانات التوفر.</p>`;
-    }
+    } catch (err) { console.error('[series] availability:', err); }
   }
 
-  // ---------- Watchlist Button ----------
   async function initWatchlistButton() {
     const btn = document.getElementById('add-watchlist-btn');
     if (!btn || !state.data) return;
@@ -364,11 +384,8 @@
 
     try {
       const r = await api.request(`/api/watchlist/check/${tmdbId}?media_type=${mediaType}`);
-      const inList = r?.data?.in_watchlist === true;
-      setBtnState(inList);
-    } catch (e) {
-      console.warn('[watchlist] check failed:', e);
-    }
+      setBtnState(r?.data?.in_watchlist === true);
+    } catch (e) { console.warn(e); }
 
     btn.addEventListener('click', async () => {
       const saved = btn.dataset.saved === '1';
@@ -381,21 +398,15 @@
           await api.request('/api/watchlist', {
             method: 'POST',
             body: {
-              tmdb_id:     tmdbId,
-              media_type:  mediaType,
-              title:       state.data.title,
-              poster_path: state.data.poster,
-              year:        state.data.year,
-              rating:      state.data.rating,
+              tmdb_id: tmdbId, media_type: mediaType,
+              title: state.data.title, poster_path: state.data.poster,
+              year: state.data.year, rating: state.data.rating,
             },
           });
           setBtnState(true);
         }
-      } catch (e) {
-        console.error('[watchlist] toggle failed:', e);
-      } finally {
-        btn.disabled = false;
-      }
+      } catch (e) { console.error(e); }
+      finally { btn.disabled = false; }
     });
 
     function setBtnState(saved) {
@@ -407,25 +418,18 @@
     }
   }
 
-  // ---------- Load ----------
   async function load() {
     const params = new URLSearchParams(window.location.search);
     const id = parseInt(params.get('id') || '0', 10);
 
-    if (!id || isNaN(id)) {
-      showError('معرف غير صالح', 'لم يتم توفير معرف مسلسل صحيح.');
-      return;
-    }
+    if (!id || isNaN(id)) { showError('معرف غير صالح', 'لم يتم توفير معرف مسلسل صحيح.'); return; }
 
     state.tmdbId = id;
 
     try {
       const payload = await api.title(id, { type: 'tv' });
       const data = payload?.data;
-      if (!data) {
-        showError('غير موجود', 'لم يتم العثور على هذا المسلسل.');
-        return;
-      }
+      if (!data) { showError('غير موجود', 'لم يتم العثور على هذا المسلسل.'); return; }
 
       state.data = data;
       document.title = `${data.title || 'Untitled'} — CineVerse`;
@@ -433,29 +437,20 @@
       renderHero(data);
       renderOverview(data);
       renderCast(data);
-
-      if (Array.isArray(data.created_by)) {
-        renderCreators({ creators: data.created_by });
-      }
-
+      renderCreators(data);
       renderSimilar(data);
       renderAvailability(data);
+      renderAdminData(data);
 
       const seasons = Array.isArray(data.seasons) ? data.seasons : [];
       renderSeasonsTabs(seasons);
-
       const first = seasons.find((s) => s.season_number > 0) || seasons[0];
-      if (first) {
-        loadSeason(first.season_number);
-      } else {
-        $('#section-seasons').style.display = 'none';
-      }
+      if (first) loadSeason(first.season_number);
+      else $('#section-seasons').style.display = 'none';
 
       const btn = $('#watch-trailer-btn');
       btn.style.display = 'inline-flex';
-      btn.addEventListener('click', () => {
-        Trailer?.open(data.tmdb_id, 'tv', data.title);
-      });
+      btn.addEventListener('click', () => Trailer?.open(data.tmdb_id, 'tv', data.title));
 
       initWatchlistButton();
 
@@ -465,7 +460,7 @@
 
     } catch (err) {
       console.error('[series] load failed:', err);
-      showError('تعذر التحميل', err.message || 'حدث خطأ أثناء تحميل تفاصيل المسلسل.');
+      showError('تعذر التحميل', err.message || 'حدث خطأ.');
     }
   }
 
@@ -489,9 +484,7 @@
         const opt = document.createElement('option');
         opt.value = c.code;
         const lang = i18n.getLang();
-        const name = lang === 'ar' ? c.name_ar
-                   : lang === 'tr' ? (c.name_tr || c.name_en)
-                   : c.name_en;
+        const name = lang === 'ar' ? c.name_ar : lang === 'tr' ? (c.name_tr || c.name_en) : c.name_en;
         opt.textContent = `${c.flag_emoji || ''} ${name}`.trim();
         select.appendChild(opt);
       });
@@ -500,9 +493,7 @@
         i18n.setCountry(select.value);
         if (state.data) renderAvailability(state.data);
       });
-    } catch (err) {
-      console.error('[series] countries:', err);
-    }
+    } catch (err) { console.error(err); }
   }
 
   function initMobileMenu() {

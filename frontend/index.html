@@ -98,10 +98,28 @@
       background-color: var(--bg-tertiary);
       border: 1px solid var(--border);
     }
+
+    /* ---------- Ad Slots ---------- */
+    .ad-slot {
+      margin-block: var(--sp-6);
+    }
+
+    .ad-slot__inner {
+      min-height: 90px;
+      background: var(--bg-secondary);
+      border: 1px dashed var(--border-strong);
+      border-radius: var(--radius-md);
+      display: grid;
+      place-items: center;
+      color: var(--text-muted);
+      font-size: var(--fs-sm);
+      padding: var(--sp-4);
+    }
   </style>
 </head>
 
 <body>
+  <!-- ============ Header ============ -->
   <header class="site-header">
     <div class="container site-header__inner">
       <a href="index.html" class="site-header__logo" aria-label="CineVerse">
@@ -129,7 +147,10 @@
     </div>
   </header>
 
+  <!-- ============ Main ============ -->
   <main>
+
+    <!-- ---------- Hero ---------- -->
     <section class="hero" id="hero">
       <div class="hero__backdrop"></div>
       <div class="hero__overlay"></div>
@@ -170,6 +191,7 @@
       </div>
     </section>
 
+    <!-- ---------- Trending Movies ---------- -->
     <section class="section">
       <div class="container">
         <div class="section__header">
@@ -186,6 +208,18 @@
       </div>
     </section>
 
+    <!-- ---------- Ad Slot (Banner) ---------- -->
+    <section class="section">
+      <div class="container">
+        <div class="ad-slot" data-ad-slot="between-trending">
+          <div class="ad-slot__inner">
+            مساحة إعلانية — Banner 728×90
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ---------- Trending Series ---------- -->
     <section class="section">
       <div class="container">
         <div class="section__header">
@@ -202,6 +236,7 @@
       </div>
     </section>
 
+    <!-- ---------- Browse by Genre ---------- -->
     <section class="section" id="genres">
       <div class="container">
         <div class="section__header">
@@ -211,6 +246,7 @@
       </div>
     </section>
 
+    <!-- ---------- Providers ---------- -->
     <section class="section" id="providers">
       <div class="container">
         <div class="section__header">
@@ -219,8 +255,10 @@
         <div id="providers-list" class="provider-grid"></div>
       </div>
     </section>
+
   </main>
 
+  <!-- ============ Footer ============ -->
   <footer class="site-footer">
     <div class="container">
       <div class="site-footer__grid">

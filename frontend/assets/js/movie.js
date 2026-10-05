@@ -10,10 +10,7 @@
   const Trailer = window.CineVerseTrailer;
   const Auth    = window.CineVerseAuth;
 
-  if (!api) {
-    console.error('[CineVerse] api.js is not loaded');
-    return;
-  }
+  if (!api) { console.error('[CineVerse] api.js is not loaded'); return; }
 
   const $ = (sel, ctx = document) => ctx.querySelector(sel);
 
@@ -22,15 +19,11 @@
     data:   null,
   };
 
-  // ---------- Helpers ----------
   function escapeHtml(str) {
     if (str == null) return '';
     return String(str)
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;')
-      .replace(/'/g, '&#039;');
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;').replace(/'/g, '&#039;');
   }
 
   function formatRuntime(minutes) {
@@ -60,7 +53,6 @@
     return String(n);
   }
 
-  // ---------- Render ----------
   function renderHero(d) {
     const posterEl = $('#title-poster');
     if (d.poster) {
@@ -178,15 +170,12 @@
       const a = document.createElement('a');
       a.className = 'card';
       a.href = isSeries ? `series.html?id=${item.tmdb_id}` : `movie.html?id=${item.tmdb_id}`;
-
       const posterHtml = item.poster
         ? `<img src="${escapeHtml(item.poster)}" alt="${escapeHtml(item.title || '')}" loading="lazy">`
         : `<div class="card__poster--empty">لا يوجد غلاف</div>`;
-
       const ratingHtml = (item.rating > 0)
         ? `<span class="card__rating"><svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>${item.rating.toFixed(1)}</span>`
         : '';
-
       a.innerHTML = `
         <div class="card__poster">
           ${posterHtml}
@@ -198,6 +187,64 @@
         </div>
       `;
       list.appendChild(a);
+    });
+  }
+
+  // ---------- Admin Data (VIP + Watch Options + Ads) ----------
+  function renderAdminData(d) {
+    // VIP Badge
+    const vipBadge = $('#vip-badge');
+    if (vipBadge) {
+      if (d.is_vip) {
+        vipBadge.style.display = 'inline-flex';
+      } else {
+        vipBadge.style.display = 'none';
+      }
+    }
+
+    // Hide Ads if hide_ads = true
+    if (d.hide_ads) {
+      document.querySelectorAll('.ad-slot').forEach((el) => {
+        el.style.display = 'none';
+      });
+    }
+
+    // Watch Options
+    const section = $('#section-watch-options');
+    const list = $('#watch-options-list');
+    if (!section || !list) return;
+
+    if (!Array.isArray(d.watch_options) || d.watch_options.length === 0) {
+      section.style.display = 'none';
+      return;
+    }
+
+    section.style.display = 'block';
+    list.innerHTML = '';
+
+    d.watch_options.forEach((opt) => {
+      const row = document.createElement('a');
+      row.href = opt.url;
+      row.target = '_blank';
+      row.rel = 'noopener noreferrer';
+      row.className = 'watch-offer';
+      row.style.textDecoration = 'none';
+      row.style.cursor = 'pointer';
+
+      row.innerHTML = `
+        <div class="watch-offer__info">
+          <div class="watch-offer__logo" style="background:${escapeHtml(opt.color)}; color:#fff; font-weight:800; font-size:14px;">
+            ${escapeHtml(opt.logo || opt.name.charAt(0))}
+          </div>
+          <div>
+            <div class="watch-offer__name">${escapeHtml(opt.name)}</div>
+            <div class="watch-offer__type">مشاهدة رسمية</div>
+          </div>
+        </div>
+        <span class="btn btn--primary watch-offer__cta">شاهد</span>
+      `;
+
+      list.appendChild(row);
     });
   }
 
@@ -218,13 +265,7 @@
       const grouped = { flatrate: [], free: [], ads: [], rent: [], buy: [] };
       data.offers.forEach((o) => { if (grouped[o.offer_type]) grouped[o.offer_type].push(o); });
 
-      const labels = {
-        flatrate: 'ضمن الاشتراك',
-        free:     'مجانًا',
-        ads:      'مجانًا بإعلانات',
-        rent:     'استئجار',
-        buy:      'شراء',
-      };
+      const labels = { flatrate: 'ضمن الاشتراك', free: 'مجانًا', ads: 'مجانًا بإعلانات', rent: 'استئجار', buy: 'شراء' };
 
       offersEl.innerHTML = '';
       Object.keys(grouped).forEach((type) => {
@@ -270,7 +311,6 @@
     }
   }
 
-  // ---------- Watchlist Button ----------
   async function initWatchlistButton() {
     const btn = document.getElementById('add-watchlist-btn');
     if (!btn || !state.data) return;
@@ -278,7 +318,6 @@
     const tmdbId    = state.data.tmdb_id;
     const mediaType = 'movie';
 
-    // Wait for auth
     const user = await new Promise((res) => {
       if (!Auth) return res(null);
       Auth.onReady(res);
@@ -292,14 +331,11 @@
       return;
     }
 
-    // Check current state
     try {
       const r = await api.request(`/api/watchlist/check/${tmdbId}?media_type=${mediaType}`);
       const inList = r?.data?.in_watchlist === true;
       setBtnState(inList);
-    } catch (e) {
-      console.warn('[watchlist] check failed:', e);
-    }
+    } catch (e) { console.warn('[watchlist] check failed:', e); }
 
     btn.addEventListener('click', async () => {
       const saved = btn.dataset.saved === '1';
@@ -315,18 +351,15 @@
               tmdb_id:     tmdbId,
               media_type:  mediaType,
               title:       state.data.title,
-              poster_path: state.data.poster,   // full URL — we store it as-is
+              poster_path: state.data.poster,
               year:        state.data.year,
               rating:      state.data.rating,
             },
           });
           setBtnState(true);
         }
-      } catch (e) {
-        console.error('[watchlist] toggle failed:', e);
-      } finally {
-        btn.disabled = false;
-      }
+      } catch (e) { console.error('[watchlist] toggle failed:', e); }
+      finally { btn.disabled = false; }
     });
 
     function setBtnState(saved) {
@@ -338,7 +371,6 @@
     }
   }
 
-  // ---------- Load ----------
   async function load() {
     const params = new URLSearchParams(window.location.search);
     const id = parseInt(params.get('id') || '0', 10);
@@ -367,15 +399,14 @@
       renderDirectors(data);
       renderSimilar(data);
       renderAvailability(data);
+      renderAdminData(data);
 
-      // Trailer
       const trailerBtn = $('#watch-trailer-btn');
       trailerBtn.style.display = 'inline-flex';
       trailerBtn.addEventListener('click', () => {
         Trailer?.open(data.tmdb_id, 'movie', data.title);
       });
 
-      // Watchlist (after data ready)
       initWatchlistButton();
 
       $('#loading-state').style.display = 'none';
@@ -397,7 +428,6 @@
     $('#main').setAttribute('aria-busy', 'false');
   }
 
-  // ---------- Country selector ----------
   async function initCountrySelector() {
     const select = $('#country-select');
     if (!select) return;
@@ -420,9 +450,7 @@
         i18n.setCountry(select.value);
         if (state.data) renderAvailability(state.data);
       });
-    } catch (err) {
-      console.error('[movie] countries:', err);
-    }
+    } catch (err) { console.error('[movie] countries:', err); }
   }
 
   function initMobileMenu() {

@@ -5,6 +5,7 @@ namespace CineVerse\Controllers;
 
 use CineVerse\Core\Request;
 use CineVerse\Core\Response;
+use CineVerse\Repositories\AdminRepository;
 use CineVerse\Services\TmdbService;
 use Throwable;
 
@@ -43,11 +44,11 @@ final class TitleController
         foreach (array_slice($raw['credits']['cast'] ?? [], 0, 20) as $person) {
             if (!is_array($person)) continue;
             $cast[] = [
-                'tmdb_id'      => (int) ($person['id'] ?? 0),
-                'name'         => $person['name'] ?? null,
-                'character'    => $person['character'] ?? null,
-                'profile'      => $tmdb->profileUrl($person['profile_path'] ?? null, 'w185'),
-                'order'        => (int) ($person['order'] ?? 999),
+                'tmdb_id'   => (int) ($person['id'] ?? 0),
+                'name'      => $person['name'] ?? null,
+                'character' => $person['character'] ?? null,
+                'profile'   => $tmdb->profileUrl($person['profile_path'] ?? null, 'w185'),
+                'order'     => (int) ($person['order'] ?? 999),
             ];
         }
 
@@ -64,6 +65,17 @@ final class TitleController
             }
         }
 
+        // Creators (TV)
+        $creators = [];
+        foreach ($raw['created_by'] ?? [] as $person) {
+            if (!is_array($person)) continue;
+            $creators[] = [
+                'tmdb_id' => (int) ($person['id'] ?? 0),
+                'name'    => $person['name'] ?? null,
+                'profile' => $tmdb->profileUrl($person['profile_path'] ?? null, 'w185'),
+            ];
+        }
+
         // Genres
         $genres = [];
         foreach ($raw['genres'] ?? [] as $g) {
@@ -74,14 +86,12 @@ final class TitleController
             ];
         }
 
-        // Similar titles (top 12)
+        // Similar (top 12)
         $similar = [];
         foreach (array_slice($raw['similar']['results'] ?? [], 0, 12) as $item) {
             if (!is_array($item)) continue;
             $itemType = $item['media_type'] ?? $type;
-            if (!in_array($itemType, ['movie', 'tv'], true)) {
-                $itemType = $type;
-            }
+            if (!in_array($itemType, ['movie', 'tv'], true)) $itemType = $type;
             $similar[] = [
                 'tmdb_id' => (int) ($item['id'] ?? 0),
                 'type'    => $itemType,
@@ -96,7 +106,7 @@ final class TitleController
             ];
         }
 
-        // Seasons (TV only)
+        // Seasons (TV)
         $seasons = [];
         if ($type === 'tv') {
             foreach ($raw['seasons'] ?? [] as $s) {
@@ -114,6 +124,49 @@ final class TitleController
 
         $title = $raw['title'] ?? $raw['name'] ?? null;
         $date  = $raw['release_date'] ?? $raw['first_air_date'] ?? null;
+
+        // ============================================================
+        // Admin Override
+        // ============================================================
+        $override = null;
+        $watchOptions = [];
+        $isVip = false;
+        $hideAds = false;
+        $trailerUrl = null;
+
+        try {
+            $adminRepo = new AdminRepository();
+            $override = $adminRepo->findOverride($id, $type);
+        } catch (Throwable $e) {
+            error_log('[Title] override lookup: ' . $e->getMessage());
+        }
+
+        if ($override) {
+            $isVip      = (bool) ($override['is_vip'] ?? false);
+            $hideAds    = (bool) ($override['hide_ads'] ?? false);
+            $trailerUrl = $override['trailer_url'] ?? null;
+
+            // Build watch options list
+            $providers = [
+                'netflix' => ['name' => 'Netflix',       'color' => '#e50914', 'logo' => 'N'],
+                'amazon'  => ['name' => 'Amazon Prime',  'color' => '#00a8e1', 'logo' => 'a'],
+                'shahid'  => ['name' => 'Shahid VIP',    'color' => '#00c853', 'logo' => 'S'],
+                'apple'   => ['name' => 'Apple TV',      'color' => '#007aff', 'logo' => ''],
+            ];
+
+            foreach ($providers as $key => $meta) {
+                $url = $override[$key . '_url'] ?? null;
+                if (!empty($url)) {
+                    $watchOptions[] = [
+                        'provider'  => $key,
+                        'name'      => $meta['name'],
+                        'color'     => $meta['color'],
+                        'logo'      => $meta['logo'],
+                        'url'       => $url,
+                    ];
+                }
+            }
+        }
 
         Response::ok([
             'tmdb_id'        => (int) ($raw['id'] ?? $id),
@@ -136,8 +189,18 @@ final class TitleController
             'genres'         => $genres,
             'cast'           => $cast,
             'directors'      => $directors,
+            'creators'       => $creators,
             'seasons'        => $seasons,
             'similar'        => $similar,
+
+            // ============================================================
+            // Admin data
+            // ============================================================
+            'is_vip'         => $isVip,
+            'hide_ads'       => $hideAds,
+            'trailer_url'    => $trailerUrl,
+            'watch_options'  => $watchOptions,
+            'has_override'   => $override !== null,
         ]);
     }
 }
