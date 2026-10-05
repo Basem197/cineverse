@@ -20,3 +20,14 @@ composer.lock
 # OS
 .DS_Store
 Thumbs.db
+
+# Upload staging folders
+upload-actor/
+upload-final/
+upload/
+
+# Sensitive debug files
+check.php
+check2.php
+test-*.php
+debug*.php
